@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>게시판 CRUD 예제</title>
+    <!-- Vue.js 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #f4f4f4; }
+        .grid-box { margin-bottom: 30px; }
+        .form-box { margin-top: 20px; border: 1px solid #ddd; padding: 20px; background-color: #fdfdfd; }
+        .form-box div { margin-top: 10px; }
+        .form-box label { display: inline-block; width: 80px; }
+        .del-btn { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .del-btn:hover { background-color: #cc0000; }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <!-- ================= 글 목록 그리드 영역 ================= -->
+        <div class="grid-box">
+            <h3>[DataList] 게시글 목록 그리드 (총 {{ boardList.length }}건)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>글번호 (boardId)</th>
+                        <th>제목 (title)</th>
+                        <th>작성자 (writer)</th>
+                        <th>등록일 (regDate)</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="board in boardList" :key="board.boardId">
+                        <td>{{ board.boardId }}</td>
+                        <td style="text-align: left; padding-left: 15px;">{{ board.title }}</td>
+                        <td>{{ board.writer }}</td>
+                        <td>{{ board.regDate ? board.regDate.replace('T', ' ').substring(0, 19) : '' }}</td>
+                        <td>
+                            <!-- 수정 버튼: 누르면 해당 글 데이터를 아래 수정 폼으로 불러옴 -->
+                            <button @click="sbm_getBoardDetail(board.boardId)">수정</button>
+                            <!-- 삭제 버튼 -->
+                            <button type="button" class="del-btn" @click="deleteBoard(board.boardId)">
+                                🗑️ 삭제
+                            </button>
+                        </td>
+                    </tr>
+                    <tr v-if="boardList.length === 0">
+                        <td colspan="5">조회된 데이터가 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ================= 글 수정 폼 영역 (테이블 바깥) ================= -->
+        <div class="form-box">
+            <h3>📝 게시글 수정 폼</h3>
+            <div>
+                <label>글 번호: </label>
+                <input type="text" v-model="editMap.boardId" readonly style="background-color: #eee;" />
+            </div>
+            <div>
+                <label>제목: </label>
+                <input type="text" v-model="editMap.title" placeholder="수정할 제목을 입력하세요" style="width: 300px;" />
+            </div>
+            <div>
+                <label>내용: </label>
+                <textarea v-model="editMap.content" placeholder="수정할 내용을 입력하세요" style="width: 300px; height: 100px;"></textarea>
+            </div>
+            <div style="margin-top: 15px;">
+                <button type="button" @click="sbm_updateBoard">수정 완료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= Vue 스크립트 로직 ================= -->
+    <script>
+        const { createApp, ref, reactive, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // 1. 목록 데이터
+                const boardList = ref([]);
+
+                // 2. 수정용 데이터 객체 (v-model 매핑)
+                const editMap = reactive({
+                    boardId: '',
+                    title: '',
+                    content: ''
+                });
+
+                // 3. 게시글 목록 조회 함수
+                const sbm_selectBoardList = async () => {
+                    try {
+                        let response = await fetch('/board/list'); // 백엔드 목록 API 경로에 맞춰 수정 가능
+                        if (response.ok) {
+                            let data = await response.json();
+                            boardList.value = data;
+                        }
+                    } catch (error) {
+                        console.error("목록 조회 통신 에러:", error);
+                    }
+                };
+
+                // 4. 단건 조회 함수 ([수정] 버튼 클릭 시 실행)
+                const sbm_getBoardDetail = async (id) => {
+                    try {
+                        let response = await fetch(`/board/detail?id=${id}`);
+                        if (response.ok) {
+                            let data = await response.json();
+                            if (data) {
+                                editMap.boardId = data.boardId;
+                                editMap.title = data.title;
+                                editMap.content = data.content;
+                            }
+                        } else {
+                            alert("게시글 정보를 불러오지 못했습니다.");
+                        }
+                    } catch (error) {
+                        console.error("단건 조회 통신 에러:", error);
+                    }
+                };
+
+                // 5. 수정 완료 함수 (PUT 요청)
+                const sbm_updateBoard = async () => {
+                    if (!editMap.boardId) {
+                        alert("수정할 게시글을 선택해 주세요.");
+                        return;
+                    }
+                    if (!editMap.title.trim() || !editMap.content.trim()) {
+                        alert("제목과 내용을 모두 입력해 주세요.");
+                        return;
+                    }
+
+                    let url = `/board/update?id=${editMap.boardId}&title=${encodeURIComponent(editMap.title)}&content=${encodeURIComponent(editMap.content)}`;
+
+                    try {
+                        let response = await fetch(url, {
+                            method: 'PUT'
+                        });
+
+                        if (response.ok) {
+                            alert("글 수정이 완료되었습니다!");
+                            sbm_selectBoardList(); // 목록 새로고침
+                            
+                            // 폼 초기화
+                            editMap.boardId = '';
+                            editMap.title = '';
+                            editMap.content = '';
+                        } else {
+                            alert("수정에 실패했습니다.");
+                        }
+                    } catch (error) {
+                        console.error("수정 통신 에러:", error);
+                    }
+                };
+
+                // 6. 삭제 함수
+                const deleteBoard = async (id) => {
+                    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+                    try {
+                        let response = await fetch(`/board/delete?id=${id}`, {
+                            method: 'DELETE' // 또는 백엔드 방식에 맞게 POST/GET 조정 가능
+                        });
+                        if (response.ok) {
+                            alert("삭제되었습니다.");
+                            sbm_selectBoardList();
+                        } else {
+                            alert("삭제 실패");
+                        }
+                    } catch (error) {
+                        console.error("삭제 통신 에러:", error);
+                    }
+                };
+
+                // 페이지가 켜지자마자 목록 조회 실행
+                onMounted(() => {
+                    sbm_selectBoardList();
+                });
+
+                // 템플릿(HTML)에서 사용할 변수 및 함수들을 반드시 모두 리턴!
+                return {
+                    boardList,
+                    editMap,
+                    sbm_selectBoardList,
+                    sbm_getBoardDetail,
+                    sbm_updateBoard,
+                    deleteBoard
+                };
+            }
+        }).mount("#app");
+    </script>
+</body>
+</html>
