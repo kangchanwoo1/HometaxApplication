@@ -1,11 +1,13 @@
 package connector.test.service;
 
-import connector.test.BoardDAO;
-import connector.test.BoardDTO;
+import java.sql.Timestamp;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import connector.test.BoardDAO;
+import connector.test.BoardDTO;
 
 @Service // 스프링이 이 클래스를 비즈니스 서비스로 인식하게 해주는 핵심 어노테이션
 public class BoardService {
@@ -29,8 +31,12 @@ public class BoardService {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("제목은 비어있을 수 없습니다.");
         }
+        BoardDTO dto = new BoardDTO();
+        dto.setTitle(title);
+        dto.setContent(content);
+        dto.setWriter(writer);
         
-        boardDAO.insertBoard(title, content, writer);
+        boardDAO.insertBoard(dto);
     }
     public BoardDTO getBoardById(int id) {
         // 만약 DAO에도 이 메서드가 아직 없다면 DAO에도 만들어주어야 합니다.
