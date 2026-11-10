@@ -15,7 +15,7 @@ public class BoardDAO {
 
     // [CREATE] 게시글 등록 메서드 (INSERT)
     public void insertBoard(BoardDTO dto) {
-        String sql = "INSERT INTO board (title, content, writer) VALUES (?, ?, ?)";
+    	String sql = "INSERT INTO board (title, content, writer, reg_date) VALUES (?, ?, ?, NOW())";
 
         int result = jdbcTemplate.update(sql, dto.getTitle(), dto.getContent(), dto.getWriter());
 
@@ -57,15 +57,7 @@ public class BoardDAO {
             return board;
         });
     }
-    public void insertBoard(String title, String content, String writer) {
-        // DB의 board 테이블에 데이터를 삽입하는 SQL 쿼리
-        String sql = "INSERT INTO board (title, content, writer, reg_date) VALUES (?, ?, ?, NOW())";
-        
-        // JdbcTemplate을 이용해 쿼리 실행 (update는 데이터가 변할 때 사용합니다)
-        jdbcTemplate.update(sql, title, content, writer);
-        
-        System.out.println("💾 DB에 새로운 게시글이 성공적으로 저장되었습니다!");
-    }
+   
     public void deleteBoard(int boardId) {
         String sql = "DELETE FROM board WHERE board_id = ?";
         
