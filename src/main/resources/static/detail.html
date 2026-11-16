@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 상세 및 수정</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-box { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 6px; background-color: #fafafa; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; }
+        .btn-update { background-color: #4CAF50; color: white; }
+        .btn-back { background-color: #888; color: white; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div class="form-box">
+            <h2>📝 게시글 상세 및 수정</h2>
+            
+            <div class="form-group">
+                <label>글 번호</label>
+                <input type="text" v-model="editMap.boardId" readonly style="background-color: #eee;" />
+            </div>
+
+            <div class="form-group">
+                <label>작성자</label>
+                <input type="text" v-model="editMap.writer" readonly style="background-color: #eee;" />
+            </div>
+            
+            <div class="form-group">
+                <label>제목</label>
+                <input type="text" v-model="editMap.title" placeholder="제목을 입력하세요" />
+            </div>
+            
+            <div class="form-group">
+                <label>내용</label>
+                <textarea v-model="editMap.content" rows="6" placeholder="내용을 입력하세요"></textarea>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" class="btn-update" @click="sbm_updateBoard">수정 완료</button>
+                <button type="button" class="btn-back" @click="goBack">목록으로</button>
+            </div>
+            <div>조회수: {{ editMap.viewCount }}</div>
+        </div>
+    </div>
+
+   <script>
+        const { createApp, reactive, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const editMap = reactive({
+                    boardId: '',
+                    title: '',
+                    content: '',
+                    writer: ''
+                });
+
+                // 1. 페이지가 열릴 때 URL에서 id 파라미터를 읽어와서 상세 조회 실행
+                onMounted(async () => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const id = urlParams.get('id');
+
+                    console.log("추출한 boardId:", id);
+
+                    if (!id) {
+                        alert("게시글 번호가 없습니다.");
+                        location.href = "index.html";
+                        return;
+                    }
+
+                    try {
+                        let response = await fetch(`/board/detail?id=${id}`);
+                        if (response.ok) {
+                            let data = await response.json();
+                            if (data) {
+                                editMap.boardId = data.boardId;
+                                editMap.title = data.title;
+                                editMap.content = data.content;
+                                editMap.writer = data.writer;
+                                editMap.viewCount = data.viewCount;
+                            } else {
+                                alert("해당 게시글이 존재하지 않습니다.");
+                                location.href = "index.html";
+                            }
+                        } else {
+                            alert("게시글 정보를 불러오지 못했습니다.");
+                        }
+                    } catch (error) {
+                        console.error("단건 조회 통신 에러:", error);
+                    }
+                });
+
+                // 2. 수정 완료 함수 (PUT 요청)
+                const sbm_updateBoard = async () => {
+                	// 💡 주소창(?id=39)에서 id를 직접 안전하게 가져옵니다!
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const boardId = urlParams.get('id');
+
+                    if (!boardId) {
+                        alert("게시글 번호(id)가 없습니다.");
+                        return;
+                    }
+
+                    if (!editMap.title.trim() || !editMap.content.trim()) {
+                        alert("제목과 내용을 모두 입력해 주세요.");
+                        return;
+                    }
+
+                    // 가져온 boardId를 URL에 확실하게 포함시킵니다.
+                    let url = `/board/update?id=${boardId}&title=${encodeURIComponent(editMap.title)}&content=${encodeURIComponent(editMap.content)}`;
+
+                    try {
+                        let response = await fetch(url, {
+                            method: 'PUT'
+                        });
+
+                        if (response.ok) {
+                            alert("글 수정이 완료되었습니다!");
+                            location.href = "index.html"; // 수정 후 목록으로 이동
+                        } else {
+                            alert("수정에 실패했습니다.");
+                        }
+                    } catch (error) {
+                        console.error("수정 통신 에러:", error);
+                    }
+                };
+             // 3. 목록으로 돌아가기
+                const goBack = () => {
+                    location.href = "index.html";
+                };
+
+                return {
+                    editMap,
+                    sbm_updateBoard,
+                    goBack
+                };
+            }
+        }).mount("#app");
+    </script>
+</body>
+</html>

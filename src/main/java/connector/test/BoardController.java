@@ -67,4 +67,11 @@ public class BoardController {
             return ResponseEntity.status(500).body("fail");
         }
     }
+    @PostMapping("/insert")
+    public void insertBoard(@RequestParam("writer") String writer,
+                            @RequestParam("title") String title,
+                            @RequestParam("content") String content) {
+        System.out.println("📥 새 글 등록 요청: " + title);
+        boardService.insertBoard(writer, title, content);
+    }
 }

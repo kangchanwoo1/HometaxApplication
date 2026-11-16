@@ -10,6 +10,7 @@ public class BoardDTO {
     private String content;
     private String writer;
     private Timestamp reg_date;
+    private int viewCount;
 
     // 1. 기본 생성자
     public BoardDTO() {}
@@ -48,12 +49,21 @@ public class BoardDTO {
     }
 
 
-    public void setRegDate(Timestamp reg_date) {
+    public int getViewCount() {
+		return viewCount;
+	}
+
+	public void setViewCount(int viewCount) {
+		this.viewCount = viewCount;
+	}
+
+	public void setRegDate(Timestamp reg_date) {
         this.reg_date = reg_date;
     }
     
     public Timestamp getRegDate() {
         return reg_date;
     }
+    
 
     }

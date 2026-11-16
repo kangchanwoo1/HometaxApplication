@@ -24,6 +24,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    
+    <dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>3.0.3</version> <!-- 본인 프로젝트 버전에 맞게 조절될 수 있습니다 -->
+</dependency>
 
     <!-- 2. 스프링 JDBC (데이터베이스 연동 편리 기능) -->
     <dependency>

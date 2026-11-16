@@ -1,6 +1,5 @@
 package connector.test.service;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +37,11 @@ public class BoardService {
         
         boardDAO.insertBoard(dto);
     }
-    public BoardDTO getBoardById(int id) {
-        // 만약 DAO에도 이 메서드가 아직 없다면 DAO에도 만들어주어야 합니다.
-        return boardDAO.getBoardById(id);
-}
+    public BoardDTO getBoardById(int boardId) {
+    	boardDAO.updateViewCount(boardId); // 1. 조회수 1 증가
+        return boardDAO.getBoardById(boardId); // 2. 상세 정보 가져오기
+    }
+
  // 삭제 비즈니스 로직 메서드 추가
     public void deleteBoard(int boardId) {
         System.out.println("⚙️ 서비스 계층: " + boardId + "번 글 삭제 요청을 처리합니다.");

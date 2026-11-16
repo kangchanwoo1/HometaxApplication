@@ -2,6 +2,7 @@ package connector.test;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -28,7 +29,7 @@ public class BoardDAO {
 
     // [READ] 게시글 목록 조회 메서드 (SELECT)
     public List<BoardDTO> getBoardList() {
-        String sql = "SELECT board_id, title, content, writer, reg_date FROM board ORDER BY board_id DESC";
+        String sql = "SELECT board_id, title, content, writer, reg_date, view_count FROM board ORDER BY board_id DESC";
 
         // ResultSet 결과를 BoardDTO 객체로 매핑해줍니다.
         RowMapper<BoardDTO> rowMapper = (rs, rowNum) -> {
@@ -38,36 +39,45 @@ public class BoardDAO {
             dto.setContent(rs.getString("content"));
             dto.setWriter(rs.getString("writer"));
             dto.setRegDate(rs.getTimestamp("reg_date"));
+            dto.setViewCount(rs.getInt("view_count"));
             return dto;
         };
 
         return jdbcTemplate.query(sql, rowMapper);
     }
- // 특정 글 번호(boardId)에 해당하는 게시글 1개를 조회하는 메서드
+ // 1. 조회수만 1 증가시키는 메서드
+    public void updateViewCount(int boardId) {
+        String sql = "UPDATE board SET view_count = COALESCE(view_count, 0) + 1 WHERE board_id = ?";
+        jdbcTemplate.update(sql, boardId);
+    }
+
+    // 2. 게시글 상세 정보를 조회하는 메서드 (SELECT)
     public BoardDTO getBoardById(int boardId) {
-        String sql = "SELECT board_id, title, content, writer, reg_date FROM board WHERE board_id = ?";
+        String selectSql = "SELECT board_id, title, content, writer, reg_date, view_count FROM board WHERE board_id = ?";
         
-        return jdbcTemplate.queryForObject(sql, new Object[]{boardId}, (rs, rowNum) -> {
+        return jdbcTemplate.queryForObject(selectSql, (rs, rowNum) -> {
             BoardDTO board = new BoardDTO();
             board.setBoardId(rs.getInt("board_id"));
             board.setTitle(rs.getString("title"));
             board.setContent(rs.getString("content"));
             board.setWriter(rs.getString("writer"));
-            board.setRegDate(rs.getTimestamp("reg_date")); // 아까 수정했던 세터 이름(setRegDate) 확인!
+            board.setRegDate(rs.getTimestamp("reg_date"));
+            board.setViewCount(rs.getInt("view_count")); // 👈 조회수 대입
             return board;
-        });
+        }, boardId);
     }
-   
+
+    // 3. 게시글 삭제 메서드
     public void deleteBoard(int boardId) {
         String sql = "DELETE FROM board WHERE board_id = ?";
-        
-        // 물음표(?) 자리에 파라미터로 받은 boardId를 쏙 집어넣어 실행합니다.
         jdbcTemplate.update(sql, boardId);
         System.out.println("🗑️ DB에서 " + boardId + "번 게시글이 삭제되었습니다.");
     }
+
+    // 4. 게시글 수정 메서드
     public int updateBoard(int boardId, String title, String content) {
-    	String sql = "UPDATE board SET title = ?, content = ? WHERE board_id = ?";
+        String sql = "UPDATE board SET title = ?, content = ? WHERE board_id = ?";
         return jdbcTemplate.update(sql, title, content, boardId);
     }
-
+    
 }
