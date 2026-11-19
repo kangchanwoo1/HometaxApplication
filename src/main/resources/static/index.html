@@ -32,10 +32,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>글번호</th>
-                    <th>작성자</th> 
-                    <th>제목</th>                   
-                    <th>조회수</th>                  
+                    <th>글번호</th>                    
+                    <th>조회수</th>
+                    <th>제목</th>                                                        
+                    <th>작성자</th>                   
                     <th>등록일</th>
                     <th>관리</th>
                 </tr>
@@ -43,9 +43,9 @@
           <tbody>
                 <tr v-for="board in boardList" :key="board.boardId">
                     <td>{{ board.boardId }}</td>
-                    <td><a :href="'detail.html?id=' + board.boardId">{{ board.title }}</a></td>
-                    <td>{{ board.writer }}</td>
                     <td>{{ board.viewCount }}</td>
+                    <td><a :href="'detail.html?id=' + board.boardId">{{ board.title }}</a></td>                   
+                    <td>{{ board.writer }}</td>                   
                     <td>{{ board.regDate ? board.regDate.replace('T', ' ').substring(0, 19) : '' }}</td>
                     <!-- 👇 관리 버튼들이 들어가는 6번째 <td>를 </tr> 안쪽으로 이동시켰습니다! -->
                     <td>

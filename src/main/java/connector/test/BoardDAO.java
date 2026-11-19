@@ -16,9 +16,9 @@ public class BoardDAO {
 
     // [CREATE] 게시글 등록 메서드 (INSERT)
     public void insertBoard(BoardDTO dto) {
-    	String sql = "INSERT INTO board (title, content, writer, reg_date) VALUES (?, ?, ?, NOW())";
+    	String sql = "INSERT INTO board (title, writer, content, reg_date) VALUES (?, ?, ?, NOW())";
 
-        int result = jdbcTemplate.update(sql, dto.getTitle(), dto.getContent(), dto.getWriter());
+        int result = jdbcTemplate.update(sql, dto.getTitle(), dto.getWriter(), dto.getContent());
 
         if (result > 0) {
             System.out.println("🎉 게시글 등록 성공!");

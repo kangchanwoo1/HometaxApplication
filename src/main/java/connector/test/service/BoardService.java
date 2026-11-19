@@ -25,7 +25,9 @@ public class BoardService {
     /**
      * 게시글 등록 로직
      */
+    
     public void insertBoard(String title, String content, String writer) {
+    	
         // 간단한 입력값 검증 예시
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("제목은 비어있을 수 없습니다.");
@@ -34,6 +36,7 @@ public class BoardService {
         dto.setTitle(title);
         dto.setContent(content);
         dto.setWriter(writer);
+        System.out.println("🔍 [Service] title: " + dto.getTitle() + ", content: " + dto.getContent() + ", writer: " + dto.getWriter());
         
         boardDAO.insertBoard(dto);
     }

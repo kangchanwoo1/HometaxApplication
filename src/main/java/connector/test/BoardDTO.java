@@ -7,8 +7,8 @@ public class BoardDTO {
     // board 테이블의 컬럼들과 1:1로 매칭되는 변수들
     private int boardId;
     private String title;
-    private String content;
     private String writer;
+    private String content;
     private Timestamp reg_date;
     private int viewCount;
 
@@ -31,6 +31,13 @@ public class BoardDTO {
     public void setTitle(String title) {
         this.title = title;
     }
+    public String getWriter() {
+        return writer;
+    }
+
+    public void setWriter(String writer) {
+        this.writer = writer;
+    }
 
     public String getContent() {
         return content;
@@ -38,14 +45,6 @@ public class BoardDTO {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getWriter() {
-        return writer;
-    }
-
-    public void setWriter(String writer) {
-        this.writer = writer;
     }
 
 

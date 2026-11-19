@@ -38,10 +38,11 @@ public class BoardController {
     // 3. 게시글 등록: /board/write
     @PostMapping("/write")
     public String writeBoard(@RequestParam("title") String title,
-                               @RequestParam("content") String content,
-                               @RequestParam("writer") String writer) {
+                               @RequestParam("writer") String writer,
+                               @RequestParam("content") String content) {
+    	       
         System.out.println("📥 웹 브라우저에서 글 등록 요청이 들어왔습니다!");
-        boardService.insertBoard(title, content, writer);
+        boardService.insertBoard(title, writer, content);
         return "게시글 등록 성공! /board/list에서 확인해보세요.";
     }
 
@@ -72,6 +73,6 @@ public class BoardController {
                             @RequestParam("title") String title,
                             @RequestParam("content") String content) {
         System.out.println("📥 새 글 등록 요청: " + title);
-        boardService.insertBoard(writer, title, content);
+        boardService.insertBoard(title, content, writer);
     }
 }
