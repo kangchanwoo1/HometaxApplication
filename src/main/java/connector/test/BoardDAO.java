@@ -53,7 +53,7 @@ public class BoardDAO {
 
     // 2. 게시글 상세 정보를 조회하는 메서드 (SELECT)
     public BoardDTO getBoardById(int boardId) {
-        String selectSql = "SELECT board_id, title, content, writer, reg_date, view_count FROM board WHERE board_id = ?";
+        String selectSql = "SELECT board_id, title, content, writer, reg_date, view_count, like_count FROM board WHERE board_id = ?";
         
         return jdbcTemplate.queryForObject(selectSql, (rs, rowNum) -> {
             BoardDTO board = new BoardDTO();
@@ -63,6 +63,7 @@ public class BoardDAO {
             board.setWriter(rs.getString("writer"));
             board.setRegDate(rs.getTimestamp("reg_date"));
             board.setViewCount(rs.getInt("view_count")); // 👈 조회수 대입
+            board.setLikeCount(rs.getInt("like_count")); //좋아요 수 대입 추가
             return board;
         }, boardId);
     }
@@ -78,6 +79,11 @@ public class BoardDAO {
     public int updateBoard(int boardId, String title, String content) {
         String sql = "UPDATE board SET title = ?, content = ? WHERE board_id = ?";
         return jdbcTemplate.update(sql, title, content, boardId);
+    }
+ // 1. 좋아요 1 증가
+    public int updateLikeCount(int boardId) {
+        String sql = "UPDATE board SET like_count = COALESCE(like_count, 0) + 1 WHERE board_id = ?";
+        return jdbcTemplate.update(sql, boardId);
     }
     
 }

@@ -75,4 +75,11 @@ public class BoardController {
         System.out.println("📥 새 글 등록 요청: " + title);
         boardService.insertBoard(title, content, writer);
     }
+    @PostMapping("/like")
+    public ResponseEntity<BoardDTO> likeBoard(@RequestParam("id") int boardId) {
+        System.out.println("👍 " + boardId + "번 게시글 좋아요 요청!");
+        BoardDTO updatedBoard = boardService.likeBoard(boardId);
+        return ResponseEntity.ok(updatedBoard);
+    }
+    
 }

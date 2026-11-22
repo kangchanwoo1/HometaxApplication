@@ -11,6 +11,7 @@ public class BoardDTO {
     private String content;
     private Timestamp reg_date;
     private int viewCount;
+    private int likeCount;
 
     // 1. 기본 생성자
     public BoardDTO() {}
@@ -63,6 +64,11 @@ public class BoardDTO {
     public Timestamp getRegDate() {
         return reg_date;
     }
-    
+    public int getLikeCount() {
+		return likeCount;
+	}
 
+	public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
     }

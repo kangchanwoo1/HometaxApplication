@@ -36,7 +36,6 @@ public class BoardService {
         dto.setTitle(title);
         dto.setContent(content);
         dto.setWriter(writer);
-        System.out.println("🔍 [Service] title: " + dto.getTitle() + ", content: " + dto.getContent() + ", writer: " + dto.getWriter());
         
         boardDAO.insertBoard(dto);
     }
@@ -58,4 +57,12 @@ public class BoardService {
         // DAO에게 실제 DB 업데이트를 지시합니다.
         boardDAO.updateBoard(boardId, title, content);
     }
+    public BoardDTO likeBoard(int boardId) {
+        int updated = boardDAO.updateLikeCount(boardId);
+        if (updated == 0) {
+            throw new IllegalArgumentException("존재하지 않는 게시글입니다. id=" + boardId);
+        }
+        return boardDAO.getBoardById(boardId);
+    }
+    
 }
